@@ -2,10 +2,7 @@ import os
 from dotenv import load_dotenv
 import psycopg2
 
-DB_HOST = "localhost"
-DB_NAME = "postgres"
-DB_USER = "postgres"
-DB_PASSWORD = "123456789"
+load_dotenv()
 
 def get_db_connection():
     conn = psycopg2.connect(
