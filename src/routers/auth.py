@@ -10,6 +10,18 @@ router = APIRouter()
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db_connection)):
+    """
+    Authenticate a user and return an access token.
+
+    Args:
+        form_data (OAuth2PasswordRequestForm): The login credentials.
+
+    Returns:
+        Token: An access token for the authenticated user.
+
+    Raises:
+        HTTPException: If the credentials are invalid.
+    """
     with db.cursor() as cur:
         cur.execute("SELECT id, username, password, is_admin FROM users WHERE username = %s", (form_data.username,))
         user = cur.fetchone()
@@ -23,5 +35,15 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get
 
 @router.post("/logout")
 async def logout(current_user: User = Depends(get_current_user), token: str = Depends(OAuth2PasswordBearer(tokenUrl="login"))):
+    """
+    Log out the current user by invalidating their token.
+
+    Args:
+        current_user (User): The current authenticated user.
+        token (str): The current access token.
+
+    Returns:
+        dict: A message confirming successful logout.
+    """
     BLACKLISTED_TOKENS.add(token)
     return {"message": "Successfully logged out"}
