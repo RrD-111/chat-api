@@ -4,6 +4,14 @@ from src.utils.query_util import INSERT_GROUP, INSERT_GROUP_MEMBER, SELECT_GROUP
 from src.models.schemas import GroupIn, Group, User
 
 async def create_group(group_in: GroupIn, current_user: User, db):
+    """
+    Create a new group.
+
+    :param group_in: The input data for creating a group.
+    :param current_user: The currently authenticated user.
+    :param db: The database connection.
+    :return: The newly created group.
+    """
     with db.cursor() as cur:
         cur.execute(INSERT_GROUP, (group_in.name,))
         new_group = cur.fetchone()
@@ -12,6 +20,15 @@ async def create_group(group_in: GroupIn, current_user: User, db):
     return Group(id=new_group[0], name=new_group[1], members=[current_user])
 
 async def delete_group(group_id: int, current_user: User, db):
+    """
+    Delete a group.
+
+    :param group_id: The ID of the group to delete.
+    :param current_user: The currently authenticated user.
+    :param db: The database connection.
+    :return: A message indicating the successful deletion of the group.
+    :raises HTTPException: If the user is not a member of the group or the group is not found.
+    """
     with db.cursor() as cur:
         cur.execute(SELECT_GROUP_MEMBER, (group_id, current_user.id))
         if not cur.fetchone():
@@ -23,6 +40,12 @@ async def delete_group(group_id: int, current_user: User, db):
     return {"message": "Group deleted successfully"}
 
 async def list_groups(db):
+    """
+    List all groups.
+
+    :param db: The database connection.
+    :return: A list of all groups.
+    """
     with db.cursor() as cur:
         cur.execute(SELECT_GROUPS)
         groups = []
@@ -32,6 +55,16 @@ async def list_groups(db):
     return groups
 
 async def add_group_members(group_id: int, member_ids: list[int], current_user: User, db):
+    """
+    Add members to a group.
+
+    :param group_id: The ID of the group to add members to.
+    :param member_ids: The list of user IDs to add as members.
+    :param current_user: The currently authenticated user.
+    :param db: The database connection.
+    :return: A message indicating the successful addition of members.
+    :raises HTTPException: If the user is not a member of the group.
+    """
     with db.cursor() as cur:
         cur.execute(SELECT_GROUP_MEMBER, (group_id, current_user.id))
         if not cur.fetchone():
