@@ -4,6 +4,16 @@ from src.utils.query_util import SELECT_GROUP_MEMBER, INSERT_MESSAGE, SELECT_MES
 from src.models.schemas import MessageIn, Message, User
 
 async def send_group_message(group_id: int, message_in: MessageIn, current_user: User, db):
+    """
+    Send a message to a group.
+
+    :param group_id: The ID of the group to send the message to.
+    :param message_in: The input data for creating a message.
+    :param current_user: The currently authenticated user.
+    :param db: The database connection.
+    :return: The newly created message.
+    :raises HTTPException: If the user is not a member of the group or a database error occurs.
+    """
     with db.cursor() as cur:
         cur.execute(SELECT_GROUP_MEMBER, (group_id, current_user.id))
         if not cur.fetchone():
@@ -18,6 +28,15 @@ async def send_group_message(group_id: int, message_in: MessageIn, current_user:
     return Message(id=new_message[0], group_id=new_message[1], content=new_message[2], likes=new_message[3])
 
 async def like_message(message_id: int, current_user: User, db):
+    """
+    Like a message.
+
+    :param message_id: The ID of the message to like.
+    :param current_user: The currently authenticated user.
+    :param db: The database connection.
+    :return: The updated like count of the message.
+    :raises HTTPException: If the message is not found or the user is not a member of the group.
+    """
     with db.cursor() as cur:
         cur.execute(SELECT_MESSAGE_GROUP, (message_id,))
         group = cur.fetchone()
