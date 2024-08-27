@@ -1,3 +1,10 @@
+
+"""
+SQL query utility module.
+
+This module contains SQL queries used throughout the application.
+"""
+
 SELECT_USER_BY_USERNAME = "SELECT id, username, password, is_admin FROM users WHERE username = %s"
 INSERT_USER = "INSERT INTO users (username, password, is_admin) VALUES (%s, %s, %s) RETURNING id, username, is_admin"
 UPDATE_USER = "UPDATE users SET username = %s, password = %s, is_admin = %s WHERE id = %s RETURNING id, username, is_admin"
