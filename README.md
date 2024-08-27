@@ -15,3 +15,6 @@ A simple application which provides web services to facilitate group chat and ma
 - FastAPI
 - PostgreSQL
 - JWT for authentication
+
+
+##Add your own env file to secure the credentials
