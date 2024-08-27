@@ -17,6 +17,16 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 BLACKLISTED_TOKENS = set()
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
+    """
+    Create a new access token.
+
+    Args:
+        data (dict): The payload to encode in the token.
+        expires_delta (timedelta, optional): The expiration time of the token.
+
+    Returns:
+        str: The encoded JWT token.
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -27,6 +37,19 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db_connection)):
+    """
+    Get the current authenticated user.
+
+    Args:
+        token (str): The JWT token.
+        db: The database connection.
+
+    Returns:
+        User: The authenticated user.
+
+    Raises:
+        HTTPException: If the token is invalid or the user doesn't exist.
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -55,6 +78,18 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_d
     return User(id=user[0], username=user[1], is_admin=user[2])
 
 async def get_current_admin_user(current_user: User = Depends(get_current_user)):
+    """
+    Get the current authenticated admin user.
+
+    Args:
+        current_user (User): The current authenticated user.
+
+    Returns:
+        User: The authenticated admin user.
+
+    Raises:
+        HTTPException: If the user is not an admin.
+    """
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Not authorized")
     return current_user
